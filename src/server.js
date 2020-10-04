@@ -4,18 +4,18 @@ const server = express();
 const path = require("path");
 const cors = require("cors");
 const dotenv = require("dotenv");
-const eventRouter = require("./src/routes/events");
-const messageRouter = require("./src/routes/message");
-const authRouter = require("./src/routes/auth");
-const userRouter = require("./src/routes/users/users");
-const profileRouter = require("./src/routes/profile/profile");
-const postRouter = require("./src/routes/post/post");
+const eventRouter = require("./routes/events");
+const messageRouter = require("./routes/message");
+const authRouter = require("./routes/auth");
+const userRouter = require("./routes/users/users");
+const profileRouter = require("./routes/profile/profile");
+const postRouter = require("./routes/post/post");
 dotenv.config();
 const {
   notFoundHandler,
   badRequestHandler,
   genericErrorHandler,
-} = require("./src/routes/errorHandler");
+} = require("./routes/errorHandler");
 const { Mongoose } = require("mongoose");
 
 server.use(cors());
