@@ -13,10 +13,6 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/yvette809/Wakanda-backend/issues"
-  },
-  "homepage": "https://github.com/yvette809/Wakanda-backend#readme",
   "devDependencies": {
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
