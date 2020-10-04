@@ -1,0 +1,33 @@
+{
+  "name": "Wakanda-backend",
+  "version": "1.0.0",
+  "description": "A sports organisation website for immigrants",
+  "main": "index.js",
+  "engines": {
+    "node": "v12.16.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yvette809/Wakanda-backend/issues"
+  },
+  "homepage": "https://github.com/yvette809/Wakanda-backend#readme",
+  "devDependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "fs-extra": "^9.0.1",
+    "mongoose": "^5.10.0",
+    "nodemon": "^2.0.4"
+  },
+  "dependencies": {
+    "nodemailer": "^6.4.11",
+    "nodemailer-mailgun-transport": "^2.0.0",
+    "query-to-mongo": "^0.10.1"
+  }
+}
