@@ -28,6 +28,7 @@
     "nodemailer": "^6.4.11",
     "nodemailer-mailgun-transport": "^2.0.0",
     "query-to-mongo": "^0.10.1",
+    "request": "^2.88.2",
     "validator": "^13.1.17"
   }
 }
