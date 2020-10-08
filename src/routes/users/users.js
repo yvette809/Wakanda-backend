@@ -5,10 +5,11 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const basicAuth = require("../../middleware/auth");
 const UserModel = require("./UserSchema");
+const UsersModel = require("./UserSchema");
 
 // Register user
 userRouter.post("/register", async (req, res, next) => {
-  const { name, email, password } = req.body;
+  const { name, username, email, password } = req.body;
   try {
     // see if user exists
     let user = await UserModel.findOne({ email });
@@ -24,6 +25,7 @@ userRouter.post("/register", async (req, res, next) => {
 
       user = new UserModel({
         name,
+        username,
         email,
         avatar,
         password,
@@ -72,5 +74,22 @@ userRouter.get("/me", basicAuth, async (req, res, next) => {
     next(error);
   }
 });
+
+
+// get all users
+userRouter.get("/",  async (req,res,next)=>{
+  try{
+    const users = await UserModel.find()
+    if(users){
+      res.status(200).send(users)
+    }else{
+      const err = new Error('users not found');
+      err.httpStatusCode= 404;
+      next(err)
+    }
+  }catch(error){
+    next (error)
+  }
+})
 
 module.exports = userRouter;

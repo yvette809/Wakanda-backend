@@ -7,6 +7,15 @@ const UserSchema = new Schema({
     type: String,
     required: [true, "Name is required"],
   },
+  username:{
+    type: String,
+    required: true
+  },
+ 
+  socketId: {
+    type: String,
+    
+  },
   email: {
     type: String,
     required: [true, "please include a valid email"],
