@@ -1,6 +1,7 @@
 const express = require("express");
+const http = require("http");
 const mongoose = require("mongoose");
-const server = express();
+
 const path = require("path");
 const cors = require("cors");
 const dotenv = require("dotenv");
@@ -15,27 +16,29 @@ const {
   badRequestHandler,
   genericErrorHandler,
 } = require("./src/routes/errorHandler");
-const { Mongoose } = require("mongoose");
+ 
+const app = express();
+const server = http.createServer(app)
 
-server.use(cors());
-server.use(express.json());
-server.use(
+app.use(cors());
+app.use(express.json());
+app.use(
   express.urlencoded({
     extended: false,
   })
 );
 
 // Routes
-server.use("/events", eventRouter);
-server.use("/auth", authRouter);
-server.use("/users", userRouter);
-server.use("/profiles", profileRouter);
-server.use("/posts", postRouter);
+app.use("/events", eventRouter);
+app.use("/auth", authRouter);
+app.use("/users", userRouter);
+app.use("/profiles", profileRouter);
+app.use("/posts", postRouter);
 
 // Error handler middleware
-server.use(badRequestHandler);
-server.use(notFoundHandler);
-server.use(genericErrorHandler);
+app.use(badRequestHandler);
+app.use(notFoundHandler);
+app.use(genericErrorHandler);
 
 const port = process.env.PORT;
 
@@ -48,21 +51,10 @@ mongoose
     }
   )
   .then(
-    server.listen(port, () => {
+    app.listen(port, () => {
       console.log(`server running on port ${port}`);
     })
   )
   .catch((error) => console.log(error));
 
-// mongoose.connect("mongodb://localhost:27017/students-profile",{
-//     useNewUrlParser:true,
-//     useUnifiedTopology:true
-// })
-// .then(
-//     server.listen(port, () =>{
-//         console.log(`something is runnning on port ${port}`)
-//     })
-// )
-// .catch(error => console.log(error)
 
-// )
