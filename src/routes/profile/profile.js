@@ -4,6 +4,7 @@ const request = require("request");
 const ProfileModel = require("./ProfileSchema");
 const UserModel = require("../../routes/users/UserSchema");
 const PostModel = require("../../routes/post/PostSchema");
+const MessageModel = require('../chat/messages/messageSchema');
 const auth = require("../../middleware/auth");
 
 // Get the profile of the logged in user
@@ -217,4 +218,22 @@ profileRouter.delete("/", auth, async (req, res) => {
   }
 });
 
+// messages
+profileRouter.get('/messages', auth, async (req, res) => {
+  const messages = await MessageModel.find();
+
+  res.send(messages);
+});
+
+profileRouter.delete('/messages', auth, async (req, res) => {
+  await MessageModel.collection.deleteMany();
+  res.send('Done');
+});
+
+profileRouter.post("/messages", auth, async(req,res)=>{
+  const messages = await MessageModel(req.body)
+  const newMessage = messages.save()
+  res.status(201).send(newMessage)
+
+})
 module.exports = profileRouter;

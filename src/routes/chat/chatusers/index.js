@@ -45,4 +45,4 @@ const chat = (server) => {
   });
 };
 
-module.exports = chat
+module.exports = chat;

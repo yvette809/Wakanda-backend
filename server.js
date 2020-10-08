@@ -16,9 +16,11 @@ const {
   badRequestHandler,
   genericErrorHandler,
 } = require("./src/routes/errorHandler");
- 
+const chat = require("./src/routes/chat/chatusers/index");
+
 const app = express();
-const server = http.createServer(app)
+const server = http.createServer(app);
+chat(server);
 
 app.use(cors());
 app.use(express.json());
@@ -56,5 +58,3 @@ mongoose
     })
   )
   .catch((error) => console.log(error));
-
-
