@@ -4,18 +4,17 @@ const server = express();
 const path = require("path");
 const cors = require("cors");
 const dotenv = require("dotenv");
-const eventRouter = require("./routes/events");
-const messageRouter = require("./routes/message");
-const authRouter = require("./routes/auth");
-const userRouter = require("./routes/users/users");
-const profileRouter = require("./routes/profile/profile");
-const postRouter = require("./routes/post/post");
+const eventRouter = require("./src/routes/events");
+const authRouter = require("./src/routes/auth");
+const userRouter = require("./src/routes/users/users");
+const profileRouter = require("./src/routes/profile/profile");
+const postRouter = require("./src/routes/post/post");
 dotenv.config();
 const {
   notFoundHandler,
   badRequestHandler,
   genericErrorHandler,
-} = require("./routes/errorHandler");
+} = require("./src/routes/errorHandler");
 const { Mongoose } = require("mongoose");
 
 server.use(cors());
@@ -32,17 +31,6 @@ server.use("/auth", authRouter);
 server.use("/users", userRouter);
 server.use("/profiles", profileRouter);
 server.use("/posts", postRouter);
-// server.use("/email", messageRouter)
-
-// serve static assets in production
-// if(process.env.NODE_ENV ==='production'){
-//   //set static folder
-//   server.use(express.static('wakanda-frontend/build'))
-
-//   server.get('*', (req,res)=>{
-//     res.sendFile(path.resolve(__dirname, 'wakanda-frontend', 'build', 'index.html'))
-//   })
-// }
 
 // Error handler middleware
 server.use(badRequestHandler);
@@ -52,10 +40,13 @@ server.use(genericErrorHandler);
 const port = process.env.PORT;
 
 mongoose
-  .connect(`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.4bc5f.mongodb.net/test`, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(
+    `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.4bc5f.mongodb.net/test`,
+    {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    }
+  )
   .then(
     server.listen(port, () => {
       console.log(`server running on port ${port}`);
