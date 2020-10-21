@@ -1,10 +1,15 @@
 const express = require("express");
 const profileRouter = express.Router();
 const request = require("request");
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs-extra");
+const { join } = require("path");
 const ProfileModel = require("./ProfileSchema");
 const UserModel = require("../../routes/users/UserSchema");
 const PostModel = require("../../routes/post/PostSchema");
-const MessageModel = require('../chat/messages/messageSchema');
+const MessageModel = require("../chat/messages/messageSchema");
+
 const auth = require("../../middleware/auth");
 
 // Get the profile of the logged in user
@@ -219,21 +224,51 @@ profileRouter.delete("/", auth, async (req, res) => {
 });
 
 // messages
-profileRouter.get('/messages', auth, async (req, res) => {
+profileRouter.get("/messages", auth, async (req, res) => {
   const messages = await MessageModel.find();
 
   res.send(messages);
 });
 
-profileRouter.delete('/messages', auth, async (req, res) => {
+profileRouter.delete("/messages", auth, async (req, res) => {
   await MessageModel.collection.deleteMany();
-  res.send('Done');
+  res.send("Done");
 });
 
-profileRouter.post("/messages", auth, async(req,res)=>{
-  const messages = await MessageModel(req.body)
-  const newMessage = messages.save()
-  res.status(201).send(newMessage)
+profileRouter.post("/messages", auth, async (req, res) => {
+  const messages = await MessageModel(req.body);
+  const newMessage = messages.save();
+  res.status(201).send(newMessage);
+});
 
-})
+//upload image
+const upload = multer({});
+const imageFilePath = path.join(__dirname, "../../public/images/profiles");
+profileRouter.post(
+  "/:id/upload",
+  auth,
+  upload.single("profile"),
+  async (req, res, next) => {
+    try {
+      if (req.file) {
+        await fs.writeFile(
+          path.join(imageFilePath, `${req.params.id}.png`),
+          req.file.buffer
+        );
+        const profile = await ProfileModel.findOneAndUpdate(req.params.id, {
+          image: `http://127.0.0.1:${process.env.PORT}/img/profile/${req.params.id}.png`,
+        });
+        res.status(200).send("uploaded");
+      } else {
+        const error = new Error();
+        error.httpstatusCode = 400;
+        error.message = "image file is missing";
+        next(error);
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 module.exports = profileRouter;

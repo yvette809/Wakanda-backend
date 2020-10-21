@@ -2,6 +2,7 @@ const express = require ("express");
 const eventRouter = express.Router();
 const q2m = require("query-to-mongo")
 const EventModel = require("./schema");
+const auth = require("../../middleware/auth")
 
 
 // get all events
@@ -83,6 +84,41 @@ eventRouter.delete("/:id", async(req,res,next)=>{
     }
     
 })
+
+// create new review
+eventRouter.post("/:id/reviews", auth, async (req, res, next) => {
+    const { comment } = req.body;
+  
+    const event = await EventModel.findById(req.params.id);
+  
+    if (event) {
+      const alreadyReviewed = event.reviews.find(
+        (r) => r.user.toString() === req.user._id.toString()
+      );
+  
+      if (alreadyReviewed) {
+        res.status(400);
+        throw new Error("event already reviewed");
+      }
+  
+      const review = {
+        name: req.user.name,
+        comment,
+        user: req.user._id,
+      };
+  
+     event.reviews.push(review);
+  
+     event.numReviews = event.reviews.length;
+  
+  
+      await event.save();
+      res.status(201).json({ message: "Review added" });
+    } else {
+      res.status(404);
+      throw new Error("review not added");
+    }
+  });
 
 
 

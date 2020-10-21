@@ -1,7 +1,7 @@
 const express = require("express");
 const http = require("http");
 const mongoose = require("mongoose");
-
+const{join} = require("path")
 const path = require("path");
 const cors = require("cors");
 const dotenv = require("dotenv");
@@ -29,6 +29,7 @@ app.use(
     extended: false,
   })
 );
+app.use(express.static(path.join(__dirname, "./src/public")))
 
 // Routes
 app.use("/events", eventRouter);
