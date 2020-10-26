@@ -29,7 +29,7 @@ app.use(
     extended: false,
   })
 );
-app.use(express.static(path.join(__dirname, "./src/public")))
+app.use(express.static(path.join(__dirname, "./src/public/images")))
 
 // Routes
 app.use("/events", eventRouter);

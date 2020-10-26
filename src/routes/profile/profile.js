@@ -39,6 +39,7 @@ profileRouter.post("/", auth, async (req, res, next) => {
     gender,
     location,
     dateOfBirth,
+    image,
     bio,
     skills,
     youtube,
@@ -54,6 +55,7 @@ profileRouter.post("/", auth, async (req, res, next) => {
   if (nationality) profileFields.nationality = nationality;
   if (gender) profileFields.gender = gender;
   if (location) profileFields.location = location;
+  if (image) profileFields.image = image;
   if (dateOfBirth) profileFields.dateOfBirth = dateOfBirth;
   if (bio) profileFields.bio = bio;
 
@@ -245,20 +247,20 @@ profileRouter.post("/messages", auth, async (req, res) => {
 const upload = multer({});
 const imageFilePath = path.join(__dirname, "../../public/images/profiles");
 profileRouter.post(
-  "/:id/upload",
-  auth,
+  "/upload", auth,
+ 
   upload.single("profile"),
   async (req, res, next) => {
     try {
       if (req.file) {
         await fs.writeFile(
-          path.join(imageFilePath, `${req.params.id}.png`),
+          path.join(imageFilePath, `${req.user.id}.png`),
           req.file.buffer
         );
-        const profile = await ProfileModel.findOneAndUpdate(req.params.id, {
-          image: `http://127.0.0.1:${process.env.PORT}/img/profile/${req.params.id}.png`,
+        const profile = await ProfileModel.findOneAndUpdate(req.user.id, {
+          image: `http://127.0.0.1:${process.env.PORT}/${req.user.id}/upload.png`,
         });
-        res.status(200).send("uploaded");
+        res.status(200).send(req.file);
       } else {
         const error = new Error();
         error.httpstatusCode = 400;
@@ -270,5 +272,26 @@ profileRouter.post(
     }
   }
 );
+
+// const upload =multer({
+//   limits:{
+//     fileSize: 2000000
+//   },
+//   fileFilter(req,file,cb){
+//     if(!file.originalname.match(/\.(jpg|jpeg|png)$/)){
+//     return cb(new Error("please upload an image"))
+//   }
+//   cb(undefined,true)
+// }
+// })
+
+// profileRouter.post("/me/image", auth, upload.single('profile'), async(req,res)=>{
+//   const profile = await ProfileModel.findOneAndUpdate(req.user.id)
+//   req.user.image = req.file.buffer
+//   profile.save()
+//   res.send('uploaded')
+// },(error,req,res,next)=>{
+//   res.status(400).send({errors:error.message})
+// })
 
 module.exports = profileRouter;

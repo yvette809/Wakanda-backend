@@ -3,9 +3,13 @@ const userRouter = express.Router();
 const gravatar = require("gravatar");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const basicAuth = require("../../middleware/auth");
+const auth = require("../../middleware/auth");
+const path = require ("path")
+const fs = require("fs-extra");
+const { join } = require("path");
 const UserModel = require("./UserSchema");
 const UsersModel = require("./UserSchema");
+const multer = require("multer");
 
 // Register user
 userRouter.post("/register", async (req, res, next) => {
@@ -60,7 +64,7 @@ userRouter.post("/register", async (req, res, next) => {
   }
 });
 
-userRouter.get("/me", basicAuth, async (req, res, next) => {
+userRouter.get("/me", auth, async (req, res, next) => {
   try {
     const user = await UserModel.findById(req.user.id).select("-password");
     if (user) {
@@ -91,5 +95,29 @@ userRouter.get("/",  async (req,res,next)=>{
     next (error)
   }
 })
+
+// post profile pic
+
+// const upload =multer({
+//   limits:{
+//     fileSize: 2000000
+//   },
+//   fileFilter(req,file,cb){
+//     if(!file.originalname.match(/\.(jpg|jpeg|png)$/)){
+//     return cb(new Error("please upload an image"))
+//   }
+//   cb(undefined,true)
+// }
+// })
+// userRouter.post("/me/image", auth, upload.single('profile'), async(req,res)=>{
+//   const user = await UsersModel.findOneAndUpdate(req.user.id)
+//   req.user.image = req.file.buffer
+//   user.save()
+//   res.send('uploaded')
+// },(error,req,res,next)=>{
+//   res.status(400).send({errors:error.message})
+// })
+
+
 
 module.exports = userRouter;

@@ -25,6 +25,10 @@ const ProfileSChema = new mongoose.Schema({
     type: String,
   },
 
+  image:{
+    type:String
+  },
+
   skills: {
     type: [String],
     required: [true, "skills is required"],
@@ -59,6 +63,7 @@ const ProfileSChema = new mongoose.Schema({
       description: {
         type: String,
       },
+     
     },
   ],
 
