@@ -2,6 +2,7 @@ const express = require ("express");
 const eventRouter = express.Router();
 const q2m = require("query-to-mongo")
 const EventModel = require("./schema");
+const UserModel = require("../users/UserSchema")
 const auth = require("../../middleware/auth")
 
 
@@ -9,7 +10,7 @@ const auth = require("../../middleware/auth")
 eventRouter.get('/', async(req,res,next)=>{
     try{
         const query = q2m(req.query)
-        const events = await EventModel.find(query.criteria, query.options.fields)
+        const events = await EventModel.find(query.criteria, query.options.fields).populate("user",  ["name", "avatar"])
         .skip(query.options.skip)
         .limit(query.options.limit)
         .sort(query.options.sort)
@@ -43,12 +44,35 @@ eventRouter.get("/:id", async(req,res,next)=>{
     
 })
 
-// create an event
-eventRouter.post ("/", async(req,res,next)=>{
-    const newEvent = new EventModel(req.body)
-    const response = await newEvent.save()
-    res.status(201).send(response)
-})
+// // create an event
+// eventRouter.post ("/", async(req,res,next)=>{
+//     const newEvent = new EventModel(req.body)
+//     const response = await newEvent.save()
+//     res.status(201).send(response)
+// })
+
+// create a new post
+eventRouter.post("/", auth, async (req, res, next) => {
+    try {
+    //   const user = await UserModel.findById(req.user.id).select("-password");
+      const newEvent = new EventModel({
+        title: req.body.title,
+        description: req.body.description,
+        image: req.body.image,
+        time: req.body.time,
+        location: req.body.location,
+        date: req.body.date,
+        user: req.user.id,
+      });
+
+      console.log(newEvent)
+  
+      const event = await newEvent.save();
+      res.json(event);
+    } catch (error) {
+      next(error);
+    }
+  });
 
 // update event
 eventRouter.put("/:id", async(req,res,next)=>{
@@ -87,13 +111,13 @@ eventRouter.delete("/:id", async(req,res,next)=>{
 
 // create new review
 eventRouter.post("/:id/reviews", auth, async (req, res, next) => {
-    const { comment } = req.body;
+    const { comment, user } = req.body;
   
     const event = await EventModel.findById(req.params.id);
   
     if (event) {
       const alreadyReviewed = event.reviews.find(
-        (r) => r.user.toString() === req.user._id.toString()
+        (r) => r.user.toString() === user._id.toString()
       );
   
       if (alreadyReviewed) {
@@ -102,10 +126,12 @@ eventRouter.post("/:id/reviews", auth, async (req, res, next) => {
       }
   
       const review = {
-        name: req.user.name,
+        name: user.name,
         comment,
-        user: req.user._id,
+        user: user._id,
       };
+
+      console.log('REVIEW', review)
   
      event.reviews.push(review);
   

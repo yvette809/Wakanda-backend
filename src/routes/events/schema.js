@@ -18,6 +18,11 @@ const reviewSchema = mongoose.Schema(
 );
 
 const EventsSchema = new Schema({
+
+    user:{
+        type: Schema.Types.ObjectId,
+        ref: 'users'
+    },
   title: {
     type: String,
     required: [true, "Title is required"],
@@ -29,7 +34,7 @@ const EventsSchema = new Schema({
   },
   image: {
     type: String,
-    rewuired: [true, "Event image is required"],
+    required: [true, "Event image is required"],
   },
   createdAt: {
     type: Date,
