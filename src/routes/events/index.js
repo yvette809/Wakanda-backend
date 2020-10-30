@@ -3,7 +3,7 @@ const eventRouter = express.Router();
 const q2m = require("query-to-mongo")
 const EventModel = require("./schema");
 const UserModel = require("../users/UserSchema")
-const auth = require("../../middleware/auth")
+const {auth} = require("../../middleware/auth")
 
 
 // get all events

@@ -33,14 +33,17 @@ const UserSchema = new Schema({
     required: true,
     minLength: 7,
   },
+  
+  isAdmin: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
 
   avatar: {
     type: String,
   },
-
-  // image:{
-  //   type:String
-  // },  
+ 
   date: {
     type: Date,
     default: Date.now,

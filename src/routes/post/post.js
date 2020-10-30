@@ -1,6 +1,6 @@
 const express = require("express");
 const postRouter = express.Router();
-const auth = require("../../middleware/auth");
+const {auth} = require("../../middleware/auth");
 const PostModel = require("./PostSchema");
 const UserModel = require("../users/UserSchema");
 const ProfileModel = require("../profile/ProfileSchema");

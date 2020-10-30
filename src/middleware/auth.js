@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 
-module.exports = function (req, res, next) {
+const auth =  (req, res, next) => {
   // get token from the header
   const token = req.headers["x-auth-token"];
   console.log(req.headers)
@@ -19,18 +19,14 @@ module.exports = function (req, res, next) {
     res.status(401).json({ msg: "Token is not valid" });
   }
 
-// try {
-//     jwt.verify(token, config.get('jwtSecret'), (error, decoded) => {
-//       if (error) {
-//         return res.status(401).json({ msg: 'Token is not valid' });
-//       } else {
-//         req.user = decoded.user;
-//         next();
-//       }
-//     });
-//   } catch (err) {
-//     console.error('something wrong with auth middleware');
-//     res.status(500).json({ msg: 'Server Error' });
-//   }
-
 };
+
+const admin = (req,res,next)=>{
+  if(req.user && req.user.isAdmin){
+    next()
+  }else{
+    res.status(401).json({msg:"not authorised as an admin"})
+  }
+}
+
+module.exports= {auth, admin}

@@ -10,7 +10,7 @@ const UserModel = require("../../routes/users/UserSchema");
 const PostModel = require("../../routes/post/PostSchema");
 const MessageModel = require("../chat/messages/messageSchema");
 
-const auth = require("../../middleware/auth");
+const {auth} = require("../../middleware/auth");
 
 // Get the profile of the logged in user
 profileRouter.get("/me", auth, async (req, res, next) => {
