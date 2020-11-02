@@ -10,7 +10,7 @@ const UserModel = require("../../routes/users/UserSchema");
 const PostModel = require("../../routes/post/PostSchema");
 const MessageModel = require("../chat/messages/messageSchema");
 
-const {auth} = require("../../middleware/auth");
+const {auth,admin} = require("../../middleware/auth");
 
 // Get the profile of the logged in user
 profileRouter.get("/me", auth, async (req, res, next) => {
@@ -222,6 +222,41 @@ profileRouter.delete("/", auth, async (req, res) => {
   } catch (err) {
     console.log(err.message);
     res.status(500).send("Server Error");
+  }
+});
+
+// admin delete userprofile by id
+
+// profileRouter.delete("/:id", auth, async (req,res)=>{
+//   try{
+//         // remove all the users post
+//     await PostModel.deleteMany({id: req.params.id})
+//      // remove profile
+//      await ProfileModel.findByIdAndRemove({profile: req.params.id})
+
+//      // remove user
+//      await UserModel.findOneAndRemove({_id: req.user._id})
+
+    
+
+//   }catch(err){
+//     console.log(err.message)
+//   }
+// })
+
+profileRouter.delete("/:id", auth,  async (req, res, next) => {
+  try {
+    const profile = await ProfileModel.findById(req.params.id);
+    if (profile) {
+      await profile.remove();
+      res.send("profile removed");
+    } else {
+      const error = new Error(`profil with id ${req.params.id} not found`);
+      error.httpStatusCode = 404;
+      next(error);
+    }
+  } catch (error) {
+    next(error);
   }
 });
 

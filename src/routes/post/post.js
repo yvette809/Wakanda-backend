@@ -1,6 +1,6 @@
 const express = require("express");
 const postRouter = express.Router();
-const {auth} = require("../../middleware/auth");
+const {auth,admin} = require("../../middleware/auth");
 const PostModel = require("./PostSchema");
 const UserModel = require("../users/UserSchema");
 const ProfileModel = require("../profile/ProfileSchema");
@@ -67,6 +67,26 @@ postRouter.delete("/:id", auth, async (req, res, next) => {
     if (post.user.toString() !== req.user.id) {
       return res.status(401).json({ msg: "user not authorized" });
     }
+
+    await post.remove();
+    res.json({ msg: "post removed" });
+  } catch (error) {
+    next(error);
+  }
+});
+
+
+// delete post admin
+
+postRouter.delete("/admin/:id", auth, async (req, res, next) => {
+  try {
+    const post = await PostModel.findById(req.params.id);
+
+    // check user. We convert the post id to string
+    if (!post) {
+      return res.status(404).json({ msg: "post not found" });
+    }
+    
 
     await post.remove();
     res.json({ msg: "post removed" });
