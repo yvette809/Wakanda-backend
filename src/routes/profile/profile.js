@@ -8,7 +8,7 @@ const { join } = require("path");
 const ProfileModel = require("./ProfileSchema");
 const UserModel = require("../../routes/users/UserSchema");
 const PostModel = require("../../routes/post/PostSchema");
-const MessageModel = require("../chat/messages/messageSchema");
+
 
 const {auth,admin} = require("../../middleware/auth");
 
@@ -260,23 +260,7 @@ profileRouter.delete("/:id", auth,  async (req, res, next) => {
   }
 });
 
-// messages
-profileRouter.get("/messages", auth, async (req, res) => {
-  const messages = await MessageModel.find();
 
-  res.send(messages);
-});
-
-profileRouter.delete("/messages", auth, async (req, res) => {
-  await MessageModel.collection.deleteMany();
-  res.send("Done");
-});
-
-profileRouter.post("/messages", auth, async (req, res) => {
-  const messages = await MessageModel(req.body);
-  const newMessage = messages.save();
-  res.status(201).send(newMessage);
-});
 
 //upload image
 const upload = multer({});

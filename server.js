@@ -1,5 +1,4 @@
 const express = require("express");
-const http = require("http");
 const mongoose = require("mongoose");
 const { join } = require("path");
 const path = require("path");
@@ -22,9 +21,6 @@ const {
 const chat = require("./src/routes/chat/chatusers/index");
 
 const app = express();
-const server = http.createServer(app);
-chat(server);
-
 app.use(cors());
 app.use(express.json());
 app.use(
