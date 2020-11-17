@@ -1,7 +1,7 @@
 const express = require("express");
 const http = require("http");
 const mongoose = require("mongoose");
-const{join} = require("path")
+const { join } = require("path");
 const path = require("path");
 const cors = require("cors");
 const dotenv = require("dotenv");
@@ -10,6 +10,9 @@ const authRouter = require("./src/routes/auth");
 const userRouter = require("./src/routes/users/users");
 const profileRouter = require("./src/routes/profile/profile");
 const postRouter = require("./src/routes/post/post");
+const passport = require("passport");
+const oAuth = require("./src/oAuth/")
+const cookieParse = require('cookie-parser');
 dotenv.config();
 const {
   notFoundHandler,
@@ -29,7 +32,11 @@ app.use(
     extended: false,
   })
 );
-app.use(express.static(path.join(__dirname, "./src/public/images")))
+app.use(express.static(path.join(__dirname, "./src/public/images")));
+
+app.use(cookieParse());
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Routes
 app.use("/events", eventRouter);
@@ -37,6 +44,8 @@ app.use("/auth", authRouter);
 app.use("/users", userRouter);
 app.use("/profiles", profileRouter);
 app.use("/posts", postRouter);
+
+
 
 // Error handler middleware
 app.use(badRequestHandler);

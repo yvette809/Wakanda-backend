@@ -3,13 +3,14 @@ const userRouter = express.Router();
 const gravatar = require("gravatar");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const {auth} = require("../../middleware/auth");
-const path = require ("path")
+const { auth } = require("../../middleware/auth");
+const path = require("path");
 const fs = require("fs-extra");
 const { join } = require("path");
 const UserModel = require("./UserSchema");
 const UsersModel = require("./UserSchema");
 const multer = require("multer");
+const passport = require("passport");
 
 // Register user
 userRouter.post("/register", async (req, res, next) => {
@@ -79,22 +80,21 @@ userRouter.get("/me", auth, async (req, res, next) => {
   }
 });
 
-
 // get all users
-userRouter.get("/",  async (req,res,next)=>{
-  try{
-    const users = await UserModel.find()
-    if(users){
-      res.status(200).send(users)
-    }else{
-      const err = new Error('users not found');
-      err.httpStatusCode= 404;
-      next(err)
+userRouter.get("/", async (req, res, next) => {
+  try {
+    const users = await UserModel.find();
+    if (users) {
+      res.status(200).send(users);
+    } else {
+      const err = new Error("users not found");
+      err.httpStatusCode = 404;
+      next(err);
     }
-  }catch(error){
-    next (error)
+  } catch (error) {
+    next(error);
   }
-})
+});
 
 // post profile pic
 
@@ -118,6 +118,58 @@ userRouter.get("/",  async (req,res,next)=>{
 //   res.status(400).send({errors:error.message})
 // })
 
+userRouter.get(
+  "/auth/facebook",
+  passport.authenticate("facebook", { scope: ["profile", "email"] })
+);
 
+userRouter.get(
+  "/auth/facebook/callback",
+  passport.authenticate("facebook", { failureRedirect: "/login" }),
+  function (req, res) {
+    // Successful authentication, redirect home.
+    res.redirect(process.env.FRONTEND_URL + "/profiles/me");
+  }
+);
+
+userRouter.get(
+  "/auth/google",
+  passport.authenticate("google", { scope: ["profile", "email"] })
+);
+
+// userRouter.get(
+//   "/auth/google/redirect",
+//   passport.authenticate("google", { failureRedirect: "/login" }),
+//   function (req, res) {
+//     // Successful authentication, redirect home.
+
+//     res.redirect(process.env.FRONTEND_URL + "/profiles/me");
+//   }
+// );
+
+userRouter.get(
+  "/auth/google/redirect",
+  passport.authenticate("google", { failureRedirect: "/login" }),
+  async (req, res, next) => {
+    try {
+      const token = req.user.token;
+      console.log("TOKEN", token);
+
+      res.cookie("token", token, {
+        httpOnly: true,
+        sameSite: "none",
+        secure: true,
+      });
+
+      res.writeHead(301, {
+        Location: process.env.FRONTEND_URL + "/profiles/me"
+      });
+      res.end();
+    } catch (error) {
+      console.log(error);
+      next(error);
+    }
+  }
+);
 
 module.exports = userRouter;

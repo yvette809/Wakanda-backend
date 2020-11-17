@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const { Schema } = require("mongoose");
 const v = require("validator");
+// var findOrCreate = require('mongoose-findorcreate')
 
 const UserSchema = new Schema({
   name: {
@@ -9,7 +10,7 @@ const UserSchema = new Schema({
   },
   username:{
     type: String,
-    required: true
+    
   },
  
   socketId: {
@@ -30,7 +31,6 @@ const UserSchema = new Schema({
   },
   password: {
     type: String,
-    required: true,
     minLength: 7,
   },
   
@@ -43,12 +43,20 @@ const UserSchema = new Schema({
   avatar: {
     type: String,
   },
+  facebookId: {
+    type: String,
+  },
+  googleId: {
+    type: String,
+  },
  
   date: {
     type: Date,
     default: Date.now,
   },
 });
+
+
 
 const UsersModel = mongoose.model("user", UserSchema);
 module.exports = UsersModel;

@@ -23,7 +23,7 @@ eventRouter.get('/', async(req,res,next)=>{
     }catch(error){
         next(error)
     }
-    const events = await EventModel.find(req.query)
+   
 })
 
 // get a specific event

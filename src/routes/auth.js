@@ -5,6 +5,7 @@ const {auth} = require("../middleware/auth");
 const jwt = require("jsonwebtoken");
 const UsersModel = require("../routes/users/UserSchema");
 
+
 // Get logged in user
 
 authRouter.get("/", auth, async (req, res, next) => {
@@ -59,5 +60,7 @@ authRouter.post("/login", async (req, res, next) => {
     next(error);
   }
 });
+
+
 
 module.exports = authRouter;

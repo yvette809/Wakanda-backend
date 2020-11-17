@@ -27,6 +27,7 @@ const ProfileSChema = new mongoose.Schema({
 
   image:{
     type:String,
+    default:'no-photo.jpg'
   
   },
 
