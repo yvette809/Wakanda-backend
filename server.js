@@ -18,7 +18,7 @@ const {
   badRequestHandler,
   genericErrorHandler,
 } = require("./src/routes/errorHandler");
-const chat = require("./src/routes/chat/chatusers/index");
+
 
 const app = express();
 app.use(cors());

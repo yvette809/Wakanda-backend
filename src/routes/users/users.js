@@ -123,14 +123,32 @@ userRouter.get(
   passport.authenticate("facebook", { scope: ["profile", "email"] })
 );
 
+
 userRouter.get(
   "/auth/facebook/callback",
   passport.authenticate("facebook", { failureRedirect: "/login" }),
-  function (req, res) {
-    // Successful authentication, redirect home.
-    res.redirect(process.env.FRONTEND_URL + "/profiles/me");
+  async (req, res, next) => {
+    try {
+      const token = req.user.token;
+      console.log("TOKEN", token);
+
+      res.cookie("token", token, {
+        httpOnly: true,
+        sameSite: "none",
+        secure: true,
+      });
+
+      res.writeHead(301, {
+        Location: process.env.FRONTEND_URL + "/profiles/me"
+      });
+      res.end();
+    } catch (error) {
+      console.log(error);
+      next(error);
+    }
   }
 );
+
 
 userRouter.get(
   "/auth/google",

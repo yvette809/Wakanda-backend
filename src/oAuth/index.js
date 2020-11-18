@@ -1,14 +1,18 @@
 const passport = require("passport");
-const FacebookStrategy = require('passport-facebook').Strategy;
-const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const FacebookStrategy = require("passport-facebook").Strategy;
+const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const UserModel = require("../routes/users/UserSchema");
 const { generateTokens } = require("../middleware/utils");
 const { auth } = require("../middleware/auth");
+const dotenv = require("dotenv");
+
+dotenv.config();
+
 
 passport.use(
   new FacebookStrategy(
     {
-      clientID: process.env.FACEBOOK_APP_ID,
+      clientID:  process.env.FACEBOOK_APP_ID,
       clientSecret: process.env.FACEBOOK_APP_SECRET,
       callbackURL: "http://localhost:4000/users/auth/facebook/callback",
       enableProof: true,
@@ -25,6 +29,7 @@ passport.use(
           profile.name.familyName.toLocaleLowerCase().slice(0, 1),
       };
       try {
+        console.log(process.env.FACEBOOK_APP_ID);
         const existingUser = await UserModel.findOne({ googleId: profile.id });
 
         if (existingUser) {
@@ -83,7 +88,6 @@ passport.use(
 passport.serializeUser(function (user, done) {
   done(null, user);
 });
-
 
 passport.deserializeUser((id, done) => {
   UserModel.findById(id).then((user) => {
