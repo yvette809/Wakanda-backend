@@ -25,10 +25,8 @@ const ProfileSChema = new mongoose.Schema({
     type: String,
   },
 
-  image:{
-    type:String,
-    default:'no-photo.jpg'
-  
+  image: {
+    type: String,
   },
 
   skills: {
@@ -65,7 +63,6 @@ const ProfileSChema = new mongoose.Schema({
       description: {
         type: String,
       },
-     
     },
   ],
 

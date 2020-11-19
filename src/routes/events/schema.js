@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const reviewSchema = mongoose.Schema(
   {
     name: { type: String, required: true },
-
+    rating: { type: Number, required: true },
     comment: { type: String, required: true },
     user: {
       type: mongoose.Schema.Types.ObjectId,
@@ -48,6 +48,7 @@ const EventsSchema = new Schema({
     type: String,
     required: true,
   },
+  
   date: {
     type: String,
     required: true,

@@ -13,10 +13,6 @@ const UserSchema = new Schema({
     
   },
  
-  socketId: {
-    type: String,
-    
-  },
   email: {
     type: String,
     required: [true, "please include a valid email"],
