@@ -1,18 +1,22 @@
 const express = require("express");
 const postRouter = express.Router();
-const {auth,admin} = require("../../middleware/auth");
+const { auth, admin } = require("../../middleware/auth");
 const PostModel = require("./PostSchema");
 const UserModel = require("../users/UserSchema");
 const ProfileModel = require("../profile/ProfileSchema");
+const path = require("path");
+const fs = require("fs-extra");
+const { join } = require("path");
+const multer = require("multer");
 
-// create a new post
+// create post
 postRouter.post("/", auth, async (req, res, next) => {
   try {
     const user = await UserModel.findById(req.user.id).select("-password");
     const newPost = new PostModel({
       text: req.body.text,
       name: user.name,
-      avatar: user.avatar,
+      image: req.body.image,
       user: req.user.id,
     });
 
@@ -75,7 +79,6 @@ postRouter.delete("/:id", auth, async (req, res, next) => {
   }
 });
 
-
 // delete post admin
 
 postRouter.delete("/admin/:id", auth, async (req, res, next) => {
@@ -86,7 +89,6 @@ postRouter.delete("/admin/:id", auth, async (req, res, next) => {
     if (!post) {
       return res.status(404).json({ msg: "post not found" });
     }
-    
 
     await post.remove();
     res.json({ msg: "post removed" });
@@ -204,4 +206,36 @@ postRouter.delete("/comment/:id/:comment_id", auth, async (req, res, next) => {
     next(error);
   }
 });
+
+// upload file
+
+const upload = multer({});
+const imageFilePath = path.join(__dirname, "../../public/images/posts");
+postRouter.post(
+  "/:id/upload",
+
+  upload.single("image"),
+  async (req, res, next) => {
+    try {
+      if (req.file) {
+        await fs.writeFile(
+          path.join(imageFilePath, `${req.params.id}.png`),
+          req.file.buffer
+        );
+        const post = await PostModel.findOneAndUpdate(req.params.id, {
+          image: `http://127.0.0.1:${process.env.PORT}/${req.params.id}/upload.png`,
+        });
+        res.status(200).send(req.file);
+      } else {
+        const error = new Error();
+        error.httpstatusCode = 400;
+        error.message = "image file is missing";
+        next(error);
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 module.exports = postRouter;
