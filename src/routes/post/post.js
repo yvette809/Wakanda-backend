@@ -7,6 +7,7 @@ const ProfileModel = require("../profile/ProfileSchema");
 const path = require("path");
 const fs = require("fs-extra");
 const { join } = require("path");
+const cloudinary = require('cloudinary').v2;
 const multer = require("multer");
 
 // create post
@@ -209,7 +210,18 @@ postRouter.delete("/comment/:id/:comment_id", auth, async (req, res, next) => {
 
 // upload file
 
-const upload = multer({});
+const upload =  multer({
+  storage: multer.diskStorage({}),
+  fileFilter: (req, file, cb) => {
+    let ext = path.extname(file.originalname);  
+    if (ext !== ".jpg" && ext !== ".jpeg" && ext !== ".png") {
+      cb(new Error("File type is not supported"), false);
+      return;
+    }
+    cb(null, true);
+  },
+});
+
 const imageFilePath = path.join(__dirname, "../../public/images/posts");
 postRouter.post(
   "/:id/upload",
@@ -224,6 +236,7 @@ postRouter.post(
         );
         const post = await PostModel.findOneAndUpdate(req.params.id, {
           image: `http://127.0.0.1:${process.env.PORT}/${req.params.id}/upload.png`,
+          useFindAndModify:false
         });
         res.status(200).send(req.file);
       } else {

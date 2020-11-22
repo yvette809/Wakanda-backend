@@ -2,15 +2,28 @@ const express = require("express");
 const profileRouter = express.Router();
 const request = require("request");
 const multer = require("multer");
+const fileupload = require ('express-fileupload')
 const path = require("path");
 const fs = require("fs-extra");
+const dotenv= require("dotenv")
 const { join } = require("path");
+const cloudinary = require("cloudinary").v2;
+const streamifier = require("streamifier");
+
 const ProfileModel = require("./ProfileSchema");
 const UserModel = require("../../routes/users/UserSchema");
 const PostModel = require("../../routes/post/PostSchema");
 
+const { auth, admin } = require("../../middleware/auth");
+dotenv.config()
 
-const {auth,admin} = require("../../middleware/auth");
+// configure cloudinary
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 // Get the profile of the logged in user
 profileRouter.get("/me", auth, async (req, res, next) => {
@@ -237,14 +250,12 @@ profileRouter.delete("/", auth, async (req, res) => {
 //      // remove user
 //      await UserModel.findOneAndRemove({_id: req.user._id})
 
-    
-
 //   }catch(err){
 //     console.log(err.message)
 //   }
 // })
 
-profileRouter.delete("/:id", auth,  async (req, res, next) => {
+profileRouter.delete("/:id", auth, async (req, res, next) => {
   try {
     const profile = await ProfileModel.findById(req.params.id);
     if (profile) {
@@ -260,57 +271,75 @@ profileRouter.delete("/:id", auth,  async (req, res, next) => {
   }
 });
 
-
-
 //upload image
-const upload = multer({});
-const imageFilePath = path.join(__dirname, "../../public/images/profiles");
+// const upload = multer({});
+// const imageFilePath = path.join(__dirname, "../../public/images/profiles");
+// profileRouter.post(
+//   "/upload", auth,
+
+//   upload.single("profile"),
+//   async (req, res, next) => {
+//     try {
+//       if (req.file) {
+//         await fs.writeFile(
+//           path.join(imageFilePath, `${req.user.id}.png`),
+//           req.file.buffer
+//         );
+//         const profile = await ProfileModel.findOneAndUpdate(req.user.id, {
+//           image: `http://127.0.0.1:${process.env.PORT}/${req.user.id}/upload.png`,
+//         });
+//         res.status(200).send(req.file);
+//       } else {
+//         const error = new Error();
+//         error.httpstatusCode = 400;
+//         error.message = "image file is missing";
+//         next(error);
+//       }
+//     } catch (error) {
+//       next(error);
+//     }
+//   }
+// );
+
+const upload =  multer({
+  storage: multer.diskStorage({}),
+  fileFilter: (req, file, cb) => {
+    let ext = path.extname(file.originalname);  
+    if (ext !== ".jpg" && ext !== ".jpeg" && ext !== ".png") {
+      cb(new Error("File type is not supported"), false);
+      return;
+    }
+    cb(null, true);
+  },
+});
 profileRouter.post(
-  "/upload", auth,
- 
-  upload.single("profile"),
+  '/upload',
+  auth,
+  upload.single('profile'),
   async (req, res, next) => {
     try {
-      if (req.file) {
-        await fs.writeFile(
-          path.join(imageFilePath, `${req.user.id}.png`),
-          req.file.buffer
-        );
-        const profile = await ProfileModel.findOneAndUpdate(req.user.id, {
-          image: `http://127.0.0.1:${process.env.PORT}/${req.user.id}/upload.png`,
-        });
-        res.status(200).send(req.file);
-      } else {
-        const error = new Error();
-        error.httpstatusCode = 400;
-        error.message = "image file is missing";
-        next(error);
-      }
+      const result = await cloudinary.uploader.upload(req.file.path)
+      console.log(result)
+     let profile = await ProfileModel.findByIdAndUpdate(req.user.id, {
+       image:result.secure_url,
+       cloudinary_id: result.public_id
+     })
+    
+
+     res.json({
+       profile,
+       msg:"uploaded"
+     })
+     
+      
     } catch (error) {
-      next(error);
+      console.log(error)
+      
     }
   }
-);
-
-// const upload =multer({
-//   limits:{
-//     fileSize: 2000000
-//   },
-//   fileFilter(req,file,cb){
-//     if(!file.originalname.match(/\.(jpg|jpeg|png)$/)){
-//     return cb(new Error("please upload an image"))
-//   }
-//   cb(undefined,true)
-// }
-// })
-
-// profileRouter.post("/me/image", auth, upload.single('profile'), async(req,res)=>{
-//   const profile = await ProfileModel.findOneAndUpdate(req.user.id)
-//   req.user.image = req.file.buffer
-//   profile.save()
-//   res.send('uploaded')
-// },(error,req,res,next)=>{
-//   res.status(400).send({errors:error.message})
-// })
+)
+  
+     
+    
 
 module.exports = profileRouter;
