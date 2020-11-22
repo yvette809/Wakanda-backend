@@ -272,72 +272,72 @@ profileRouter.delete("/:id", auth, async (req, res, next) => {
 });
 
 //upload image
-// const upload = multer({});
-// const imageFilePath = path.join(__dirname, "../../public/images/profiles");
-// profileRouter.post(
-//   "/upload", auth,
-
-//   upload.single("profile"),
-//   async (req, res, next) => {
-//     try {
-//       if (req.file) {
-//         await fs.writeFile(
-//           path.join(imageFilePath, `${req.user.id}.png`),
-//           req.file.buffer
-//         );
-//         const profile = await ProfileModel.findOneAndUpdate(req.user.id, {
-//           image: `http://127.0.0.1:${process.env.PORT}/${req.user.id}/upload.png`,
-//         });
-//         res.status(200).send(req.file);
-//       } else {
-//         const error = new Error();
-//         error.httpstatusCode = 400;
-//         error.message = "image file is missing";
-//         next(error);
-//       }
-//     } catch (error) {
-//       next(error);
-//     }
-//   }
-// );
-
-const upload =  multer({
-  storage: multer.diskStorage({}),
-  fileFilter: (req, file, cb) => {
-    let ext = path.extname(file.originalname);  
-    if (ext !== ".jpg" && ext !== ".jpeg" && ext !== ".png") {
-      cb(new Error("File type is not supported"), false);
-      return;
-    }
-    cb(null, true);
-  },
-});
+const upload = multer({});
+const imageFilePath = path.join(__dirname, "../../public/images/profiles");
 profileRouter.post(
-  '/upload',
-  auth,
-  upload.single('profile'),
+  "/upload", auth,
+
+  upload.single("profile"),
   async (req, res, next) => {
     try {
-      const result = await cloudinary.uploader.upload(req.file.path)
-      console.log(result)
-     let profile = await ProfileModel.findByIdAndUpdate(req.user.id, {
-       image:result.secure_url,
-       cloudinary_id: result.public_id
-     })
-    
-
-     res.json({
-       profile,
-       msg:"uploaded"
-     })
-     
-      
+      if (req.file) {
+        await fs.writeFile(
+          path.join(imageFilePath, `${req.user.id}.png`),
+          req.file.buffer
+        );
+        const profile = await ProfileModel.findOneAndUpdate(req.user.id, {
+          image: `http://127.0.0.1:${process.env.PORT}/${req.user.id}/upload.png`,
+        });
+        res.status(200).send(req.file);
+      } else {
+        const error = new Error();
+        error.httpstatusCode = 400;
+        error.message = "image file is missing";
+        next(error);
+      }
     } catch (error) {
-      console.log(error)
-      
+      next(error);
     }
   }
-)
+);
+
+// const upload =  multer({
+//   storage: multer.diskStorage({}),
+//   fileFilter: (req, file, cb) => {
+//     let ext = path.extname(file.originalname);  
+//     if (ext !== ".jpg" && ext !== ".jpeg" && ext !== ".png") {
+//       cb(new Error("File type is not supported"), false);
+//       return;
+//     }
+//     cb(null, true);
+//   },
+// });
+// profileRouter.post(
+//   '/upload',
+//   auth,
+//   upload.single('profile'),
+//   async (req, res, next) => {
+//     try {
+//       const result = await cloudinary.uploader.upload(req.file.path)
+//       console.log(result)
+//      const profile = await ProfileModel.findByIdAndUpdate(req.user.id, {
+//        image:result.secure_url,
+//        cloudinary_id: result.public_id
+//      })
+    
+
+//      res.json({
+//        profile,
+//        msg:"uploaded"
+//      })
+     
+      
+//     } catch (error) {
+//       console.log(error)
+      
+//     }
+//   }
+// )
   
      
     
