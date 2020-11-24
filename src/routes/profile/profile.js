@@ -2,10 +2,10 @@ const express = require("express");
 const profileRouter = express.Router();
 const request = require("request");
 const multer = require("multer");
-const fileupload = require('express-fileupload')
+const fileupload = require("express-fileupload");
 const path = require("path");
 const fs = require("fs-extra");
-const dotenv = require("dotenv")
+const dotenv = require("dotenv");
 const { join } = require("path");
 const cloudinary = require("cloudinary").v2;
 const streamifier = require("streamifier");
@@ -15,7 +15,7 @@ const UserModel = require("../../routes/users/UserSchema");
 const PostModel = require("../../routes/post/PostSchema");
 
 const { auth, admin } = require("../../middleware/auth");
-dotenv.config()
+dotenv.config();
 
 // configure cloudinary
 
@@ -301,36 +301,37 @@ profileRouter.delete("/:id", auth, async (req, res, next) => {
 //   }
 // );
 
-
-const upload = multer({})
+const upload = multer({});
 profileRouter.post(
-  '/upload',
+  "/upload",
   auth,
-  upload.single('profile'),
+  upload.single("profile"),
   async (req, res, next) => {
     try {
       if (req.file) {
         const cld_upload_stream = cloudinary.uploader.upload_stream(
           {
-            folder: 'covers',
+            folder: "covers",
           },
           async (err, result) => {
             if (!err) {
               const image = result.secure_url;
-              console.log("IMAGE", image)
-              const profile = await ProfileModel.findOneAndUpdate(req.user.id, { image })
+              console.log("IMAGE", image);
+              const profile = await ProfileModel.findOneAndUpdate(req.user.id, {
+                image,
+              });
               //user.save()
               if (profile) {
-                await profile.save()
-                console.log("PROFILE", await profile.save())
-                res.status(200).send('Done');
+                await profile.save();
+                console.log("PROFILE", await profile.save());
+                res.status(200).send(profile.image);
               } else {
-                const error = new Error(`profile with id ${req.user.id} not found`)
-                error.httpStatusCode = 404
-                next(error)
+                const error = new Error(
+                  `profile with id ${req.user.id} not found`
+                );
+                error.httpStatusCode = 404;
+                next(error);
               }
-
-
             }
           }
         );
@@ -338,7 +339,7 @@ profileRouter.post(
       } else {
         const err = new Error();
         err.httpStatusCode = 400;
-        err.message = 'Image file missing!';
+        err.message = "Image file missing!";
         next(err);
       }
     } catch (error) {
@@ -346,11 +347,5 @@ profileRouter.post(
     }
   }
 );
-
-
-
-
-
-
 
 module.exports = profileRouter;
