@@ -318,7 +318,7 @@ profileRouter.post(
             if (!err) {
               const image = result.secure_url;
               console.log("IMAGE", image)
-              const profile = await ProfileModel.findByIdAndUpdate(req.user.id, { image })
+              const profile = await ProfileModel.findOneAndUpdate(req.user.id, { image })
               //user.save()
               if (profile) {
                 await profile.save()
