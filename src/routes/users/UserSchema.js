@@ -8,11 +8,11 @@ const UserSchema = new Schema({
     type: String,
     required: [true, "Name is required"],
   },
-  username:{
+  username: {
     type: String,
-    
+
   },
- 
+
   email: {
     type: String,
     required: [true, "please include a valid email"],
@@ -29,7 +29,7 @@ const UserSchema = new Schema({
     type: String,
     minLength: 7,
   },
-  
+
   isAdmin: {
     type: Boolean,
     required: true,
@@ -39,13 +39,14 @@ const UserSchema = new Schema({
   avatar: {
     type: String,
   },
+
   facebookId: {
     type: String,
   },
   googleId: {
     type: String,
   },
- 
+
   date: {
     type: Date,
     default: Date.now,

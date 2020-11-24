@@ -11,6 +11,16 @@ const UserModel = require("./UserSchema");
 const UsersModel = require("./UserSchema");
 const multer = require("multer");
 const passport = require("passport");
+const cloudinary = require("cloudinary").v2;
+const streamifier = require("streamifier");
+
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
 
 // Register user
 userRouter.post("/register", async (req, res, next) => {
@@ -96,27 +106,6 @@ userRouter.get("/", async (req, res, next) => {
   }
 });
 
-// post profile pic
-
-// const upload =multer({
-//   limits:{
-//     fileSize: 2000000
-//   },
-//   fileFilter(req,file,cb){
-//     if(!file.originalname.match(/\.(jpg|jpeg|png)$/)){
-//     return cb(new Error("please upload an image"))
-//   }
-//   cb(undefined,true)
-// }
-// })
-// userRouter.post("/me/image", auth, upload.single('profile'), async(req,res)=>{
-//   const user = await UsersModel.findOneAndUpdate(req.user.id)
-//   req.user.image = req.file.buffer
-//   user.save()
-//   res.send('uploaded')
-// },(error,req,res,next)=>{
-//   res.status(400).send({errors:error.message})
-// })
 
 userRouter.get(
   "/auth/facebook",

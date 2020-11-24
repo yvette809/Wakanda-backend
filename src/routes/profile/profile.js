@@ -2,10 +2,10 @@ const express = require("express");
 const profileRouter = express.Router();
 const request = require("request");
 const multer = require("multer");
-const fileupload = require ('express-fileupload')
+const fileupload = require('express-fileupload')
 const path = require("path");
 const fs = require("fs-extra");
-const dotenv= require("dotenv")
+const dotenv = require("dotenv")
 const { join } = require("path");
 const cloudinary = require("cloudinary").v2;
 const streamifier = require("streamifier");
@@ -272,28 +272,74 @@ profileRouter.delete("/:id", auth, async (req, res, next) => {
 });
 
 //upload image
-const upload = multer({});
-const imageFilePath = path.join(__dirname, "../../public/images/profiles");
-profileRouter.post(
-  "/upload", auth,
+// const upload = multer({});
+// const imageFilePath = path.join(__dirname, "../../public/images/profiles");
+// profileRouter.post(
+//   "/upload", auth,
 
-  upload.single("profile"),
+//   upload.single("profile"),
+//   async (req, res, next) => {
+//     try {
+//       if (req.file) {
+//         await fs.writeFile(
+//           path.join(imageFilePath, `${req.user.id}.png`),
+//           req.file.buffer
+//         );
+//         const profile = await ProfileModel.findOneAndUpdate(req.user.id, {
+//           image: `http://127.0.0.1:${process.env.PORT}/${req.user.id}/upload.png`,
+//         });
+//         res.status(200).send(req.file);
+//       } else {
+//         const error = new Error();
+//         error.httpstatusCode = 400;
+//         error.message = "image file is missing";
+//         next(error);
+//       }
+//     } catch (error) {
+//       next(error);
+//     }
+//   }
+// );
+
+
+const upload = multer({})
+profileRouter.post(
+  '/upload',
+  auth,
+  upload.single('profile'),
   async (req, res, next) => {
     try {
       if (req.file) {
-        await fs.writeFile(
-          path.join(imageFilePath, `${req.user.id}.png`),
-          req.file.buffer
+        const cld_upload_stream = cloudinary.uploader.upload_stream(
+          {
+            folder: 'covers',
+          },
+          async (err, result) => {
+            if (!err) {
+              const image = result.secure_url;
+              console.log("IMAGE", image)
+              const profile = await ProfileModel.findByIdAndUpdate(req.user.id, { image })
+              //user.save()
+              if (profile) {
+                await profile.save()
+                console.log("PROFILE", await profile.save())
+                res.status(200).send('Done');
+              } else {
+                const error = new Error(`profile with id ${req.user.id} not found`)
+                error.httpStatusCode = 404
+                next(error)
+              }
+
+
+            }
+          }
         );
-        const profile = await ProfileModel.findOneAndUpdate(req.user.id, {
-          image: `http://127.0.0.1:${process.env.PORT}/${req.user.id}/upload.png`,
-        });
-        res.status(200).send(req.file);
+        streamifier.createReadStream(req.file.buffer).pipe(cld_upload_stream);
       } else {
-        const error = new Error();
-        error.httpstatusCode = 400;
-        error.message = "image file is missing";
-        next(error);
+        const err = new Error();
+        err.httpStatusCode = 400;
+        err.message = 'Image file missing!';
+        next(err);
       }
     } catch (error) {
       next(error);
@@ -301,45 +347,10 @@ profileRouter.post(
   }
 );
 
-// const upload =  multer({
-//   storage: multer.diskStorage({}),
-//   fileFilter: (req, file, cb) => {
-//     let ext = path.extname(file.originalname);  
-//     if (ext !== ".jpg" && ext !== ".jpeg" && ext !== ".png") {
-//       cb(new Error("File type is not supported"), false);
-//       return;
-//     }
-//     cb(null, true);
-//   },
-// });
-// profileRouter.post(
-//   '/upload',
-//   auth,
-//   upload.single('profile'),
-//   async (req, res, next) => {
-//     try {
-//       const result = await cloudinary.uploader.upload(req.file.path)
-//       console.log(result)
-//      const profile = await ProfileModel.findByIdAndUpdate(req.user.id, {
-//        image:result.secure_url,
-//        cloudinary_id: result.public_id
-//      })
-    
 
-//      res.json({
-//        profile,
-//        msg:"uploaded"
-//      })
-     
-      
-//     } catch (error) {
-//       console.log(error)
-      
-//     }
-//   }
-// )
-  
-     
-    
+
+
+
+
 
 module.exports = profileRouter;
